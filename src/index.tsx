@@ -1,13 +1,27 @@
-type UserPropsType = {
-    name: string
-    description: string
-}
-export const User: React.FC<UserPropsType> = (props) => {
-    return <div>
-        <h1>Имя: {props.name}</h1>
-        <div>Описание: {props.description}</div>
-    </div>
+export const reducer = (state: any, action: any) => {
+    switch (action.type) {
+        case 'TRACK-ADDED':
+            return {
+                ...state,
+                [action.trackId]: {
+                    id: action.trackId, likesCount: 0
+                }
+            }
+        default:
+            return state
+    }
 }
 
-// Что нужно написать вместо ххх, что бы код работал?
-// props.description
+const addTrackAC = (trackId: number) => ({type: 'TRACK-ADDED', trackId})
+
+const state = {
+    12: {id: 12, likesCount: 10},
+    14: {id: 14, likesCount: 2},
+    100: {id: 100, likesCount: 0},
+}
+const newState = reducer(state, addTrackAC(state["100"].id = 300))
+console.log(newState[300].likesCount === 0)
+
+// Что нужно написать вместо XXX, чтобы в консоли увидеть true?
+// Неверный ответ addTrackAC(state["100"].likesCount)
+// Попробовать ответ addTrackAC(state["100"].id = 300)

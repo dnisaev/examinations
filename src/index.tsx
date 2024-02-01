@@ -19,9 +19,7 @@ const state = {
     14: {id: 14, likesCount: 2},
     100: {id: 100, likesCount: 0},
 }
-const newState = reducer(state, addTrackAC(state["100"].id = 300))
+const newState = reducer(state, addTrackAC(300))
 console.log(newState[300].likesCount === 0)
 
 // Что нужно написать вместо XXX, чтобы в консоли увидеть true?
-// Неверный ответ addTrackAC(state["100"].likesCount)
-// Попробовать ответ addTrackAC(state["100"].id = 300)

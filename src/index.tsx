@@ -1,77 +1,137 @@
-import axios from 'axios'
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import ReactDOM from 'react-dom/client';
+import React, { useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import { ThunkAction, ThunkDispatch } from "redux-thunk";
+import { Provider, TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 
 // Types
-type CommentType = {
-    postId: string
-    id: string
-    name: string
-    email: string
-    body: string
-}
+type PostType = {
+    body: string;
+    id: string;
+    title: string;
+    userId: string;
+};
+
+type PayloadType = {
+    title: string;
+    body?: string;
+};
 
 // Api
-const instance = axios.create({baseURL: 'https://exams-frontend.kimitsu.it-incubator.ru/api/'})
+const instance = axios.create({ baseURL: "https://exams-frontend.kimitsu.it-incubator.ru/api/" });
 
-const commentsAPI = {
-    getComments() {
-        return instance.get<CommentType[]>('comments')
+const postsAPI = {
+    getPosts() {
+        return instance.get<PostType[]>("posts");
     },
-    createComment() {
-        const payload = {body: 'Это просто заглушка. Backend сам сгенерирует новый комментарий и вернет его вам'}
-        // Promise.resolve() стоит в качестве заглушки, чтобы TS не ругался и код компилировался
-        // Promise.resolve() нужно удалить и написать правильный запрос для создания нового комментария
-        return Promise.resolve()
-    }
-}
+    updatePostTitle(postId: string, post: PayloadType) {
+        return instance.put<PostType>(`posts/${postId}`, post);
+    },
+};
 
+// Reducer
+const initState = [] as PostType[];
+
+type InitStateType = typeof initState;
+
+const postsReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
+    switch (action.type) {
+        case "POSTS/GET-POSTS":
+            return action.posts;
+
+        case "POSTS/UPDATE-POST-TITLE":
+            return state.map((p) => {
+                if (p.id === action.post.id) {
+                    return { ...p, title: action.post.title };
+                } else {
+                    return p;
+                }
+            });
+
+        default:
+            return state;
+    }
+};
+
+const getPostsAC = (posts: PostType[]) => ({ type: "POSTS/GET-POSTS", posts }) as const;
+const updatePostTitleAC = (post: PostType) => ({ type: "POSTS/UPDATE-POST-TITLE", post }) as const;
+type ActionsType = ReturnType<typeof getPostsAC> | ReturnType<typeof updatePostTitleAC>;
+
+const getPostsTC = (): AppThunk => (dispatch) => {
+    postsAPI.getPosts().then((res) => {
+        dispatch(getPostsAC(res.data));
+    });
+};
+
+const updatePostTC =
+    (postId: string): AppThunk =>
+        (dispatch, getState: any) => {
+            try {
+                const currentPost = getState().posts.find((p: PostType) => p.id === postId);
+
+                if (currentPost) {
+                    const payload = { title: "Это просто заглушка. Backend сам сгенерирует новый title" };
+                    postsAPI.updatePostTitle(postId, payload).then((res) => {
+                        dispatch(updatePostTitleAC(res.data));
+                    });
+                }
+            } catch (e) {
+                console.log(e)
+                alert("Обновить пост не удалось 😢");
+            }
+        };
+
+// Store
+const rootReducer = combineReducers({
+    posts: postsReducer,
+});
+
+const store = configureStore({ reducer: rootReducer });
+type RootState = ReturnType<typeof store.getState>;
+type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>;
+type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>;
+const useAppDispatch = () => useDispatch<AppDispatch>();
+const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 // App
-export const App = () => {
-
-    const [comments, setComments] = useState<CommentType[]>([])
+const App = () => {
+    const dispatch = useAppDispatch();
+    const posts = useAppSelector((state) => state.posts);
 
     useEffect(() => {
-        commentsAPI.getComments()
-            .then((res) => {
-                setComments(res.data)
-            })
-    }, [])
+        dispatch(getPostsTC());
+    }, []);
 
-    const createPostHandler = () => {
-        commentsAPI.createComment()
-            .then((res: any) => {
-                const newComment = res.data
-                setComments([newComment, ...comments,])
-            })
+    const updatePostHandler = (postId: string) => {
+        dispatch(updatePostTC(postId));
     };
 
     return (
         <>
-            <h1>📝 Список комментариев</h1>
-            <div style={{marginBottom: '15px'}}>
-                <button style={{marginLeft: '15px'}}
-                        onClick={() => createPostHandler()}>
-                    Добавить новый комментарий
-                </button>
-            </div>
-
-            {
-                comments.map(c => {
-                    return <div key={c.id}><b>Comment</b>: {c.body} </div>
-                })
-            }
+            <h1>📜 Список постов</h1>
+            {posts.map((p) => {
+                return (
+                    <div key={p.id}>
+                        <b>title</b>: {p.title}
+                        <button onClick={() => updatePostHandler(p.id)}>Обновить пост</button>
+                    </div>
+                );
+            })}
         </>
-    )
-}
+    );
+};
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(<App/>)
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+root.render(
+    <Provider store={store}>
+        <App />
+    </Provider>,
+);
 
 // 📜 Описание:
-// Напишите запрос на сервер для создания нового комментария.
-// Типизацию возвращаемых данных в ответе указывать необязательно, но можно и указать (в ответах учтены оба варианта).
-// Исправленную версию строки напишите в качестве ответа.
-//
-// 🖥 Пример ответа: return Promise.resolve(payload)
+// Попробуйте обновить пост и вы увидите alert с ошибкой.
+// Debugger / network / console.log вам в помощь
+// Найдите ошибку и вставьте исправленную строку кода в качестве ответа.
+
+// 🖥 Пример ответа: const payload = {...currentPost, tile: 'Летим 🚀'}

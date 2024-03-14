@@ -24,7 +24,7 @@ const Balance = () => {
   useEffect( ()=> {
     if (params.bonus) {
       // ❗❗❗ XXX ❗❗❗
-
+      setBalance(+params.bonus + balance)
     }
   },[] )
 
@@ -57,3 +57,4 @@ root.render(
 // 🖥 Пример ответа: balance = newSum
 // Неверный ответ: setBalance(newSum)
 // Неверный ответ: setBalance(+params.bonus)
+// Попробовать ответ: setBalance(+params.bonus)

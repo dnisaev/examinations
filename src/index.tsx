@@ -1,60 +1,63 @@
-import ReactDOM from 'react-dom/client';
+import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { BrowserRouter, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import ReactDOM from 'react-dom/client'
 
-const newSum = 1000
+type UserType = {
+  id: string;
+  name: string;
+  age: number;
+}
 
-const Login = () => {
-  const navigate = useNavigate()
+// API
+const instance = axios.create({baseURL: 'https://exams-frontend.kimitsu.it-incubator.ru/api/'})
+
+const api = {
+  getUsers() {
+    return instance.get('users?pageSize=3&pageNumber=2')
+    // return instance.get('users', {params: {pageSize: 3, pageNumber: 2}})
+  },
+}
+
+// App
+export const App = () => {
+
+  const [users, setUsers] = useState<UserType[]>([])
 
   useEffect(() => {
-    navigate(`/balance/${newSum}`)
+    api.getUsers()
+      .then((res) => {
+        setUsers(res.data.items)
+      })
   }, [])
 
+
   return (
-    <h1>Login</h1>
+    <>
+      <h1>👪 Список пользователей</h1>
+      {
+        users.map(u => {
+          return <div style={{display: 'flex', gap: '10px'}} key={u.id}>
+            <p><b>name</b>: {u.name}</p>
+            <p><b>age</b>: {u.age}</p>
+          </div>
+        })
+      }
+    </>
   )
 }
 
-const Balance = () => {
-  const [balance, setBalance] = useState(500)
-
-  const params = useParams()
-
-  useEffect( ()=> {
-    if (params.bonus) {
-      // ❗❗❗ XXX ❗❗❗
-      setBalance(+params.bonus + balance)
-    }
-  },[] )
-
-  return (
-    <h1>💵 balance: {balance}</h1>
-  )
-}
-
-export const Bank = () => {
-  return (
-    <Routes>
-      <Route path={'/'} element={<Login/>}/>
-      <Route path={'/balance/:bonus'} element={<Balance/>}/>
-    </Routes>
-  )
-}
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-  <BrowserRouter>
-    <Bank/>
-  </BrowserRouter>
-);
+root.render(<App/>)
 
 // 📜 Описание:
-// Перед вами баланс равный 500.
-// Ваша задача вместо XXX написать код,
-// в результате которого баланс увеличится на сумму указанную в роуте.
+// На странице отображен список юзеров из 3-человек.
+// Подгрузились именно эти пользователи не случайно, а из-за query параметров указанных в запросе.
+// Ваша задача переписать строку с запросом таким образом, чтобы получить аналогичный результат (все тех же юзеров),
+// при этом запрещено в ответе использовать символы вопроса и амперсанда.
+// В качестве ответа укажите полностью исправленную строку коду (переносы разрешены)
 
-// 🖥 Пример ответа: balance = newSum
-// Неверный ответ: setBalance(newSum)
-// Неверный ответ: setBalance(+params.bonus)
-// Попробовать ответ: setBalance(+params.bonus)
+
+// 🖥 Пример ответа: return instance.get('users=pageSize=3=pageNumber=2')
+// Не успел ответить
+// return instance.get('users', {params: {pageSize: 3, pageNumber: 2}})

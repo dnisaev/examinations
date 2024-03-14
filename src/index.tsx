@@ -1,62 +1,115 @@
-import { useFormik } from 'formik';
-import React from 'react'
+
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import React from 'react'
 
-// Main
-export const Login = () => {
-
-    const formik = useFormik({
-        initialValues: {
-            email: '',
-            password: '',
-        },
-        onSubmit: values => {
-            alert(JSON.stringify(values, null, 2));
-        },
-    });
-
-    return (
-        <form onSubmit={formik.handleSubmit}>
-            <div>
-                <input
-                    name="email"
-                    onChange={formik.handleChange}
-                    value={formik.values.email}
-                    type="text"
-                    placeholder={'Введите email'}
-                />
-            </div>
-            <div>
-                <input
-                    name="password"
-                    onChange={formik.handleChange}
-                    value={formik.values.password}
-                    type="password"
-                    placeholder={'Введите пароль'}
-                />
-            </div>
-            <button type="submit">Отправить</button>
-        </form>
-    );
+type UserType = {
+  id: number
+  name: string
+  avatar: string
+  age: number
+  address: string
 }
 
-// App
-export const App = () => {
+const users: UserType[] = [
+  {
+    id: 1,
+    name: 'my Name',
+    age: 32,
+    avatar: '—ฅ/ᐠ.̫ .ᐟ\\ฅ—',
+    address: 'my Address'
+  },
+  {
+    id: 2,
+    name: 'John',
+    age: 22,
+    avatar: ':)',
+    address: 'California'
+  },
+  {
+    id: 3,
+    name: 'Mike',
+    age: 18,
+    avatar: '^._.^',
+    address: 'New York'
+  },
+  {
+    id: 4,
+    name: 'Emma',
+    age: 38,
+    avatar: '/ᐠ-ꞈ-ᐟ\\',
+    address: 'Washington'
+  },
+]
+
+const StartPage = () => {
+  const navigate = useNavigate()
+  const friends = users.filter(u => u.id !== 1)
+
+  const mappedFriends = friends.map((f, i) => {
+    const go = () => {
+      navigate('/friend/' + f.id)
+    }
+
     return (
-        <Routes>
-            <Route path={''} element={<Login/>}/>
-        </Routes>
+      <div key={i} onClick={go} style={{paddingLeft: 24, color: 'blue', cursor: 'pointer'}}>
+        {f.name}, {f.age}
+      </div>
     )
+  })
+
+  return (
+    <div>
+      <h2>🙂 My profile</h2>
+      <Profile userId={1}/>
+      <hr/>
+      <h2>👪 Friends</h2>
+      {mappedFriends}
+    </div>
+  )
+}
+const Profile: React.FC<{ userId?: number }> = ({userId}) => {
+  const {id} = useParams<{ id: string }>()
+  const user = users.find(u => u.id === +(id || userId || 0))
+
+  return (
+    <div>
+      <div>
+        <b>avatar</b> {user?.avatar}
+      </div>
+      <div>
+        <div><b>name</b>: {user?.name}</div>
+        <div><b>age</b>: {user?.age}</div>
+        <div><b>address</b>: {user?.address}</div>
+      </div>
+    </div>
+  )
+}
+
+export const Friends = () => {
+  return (
+    <Routes>
+      <Route path={'/'} element={<StartPage/>}/>
+      <Route path={'friend/:id'} element={<Profile/>}/>
+      <Route path={'*'} element={<div>❌404 Page Not Found❌</div>}/>
+    </Routes>
+  )
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(<BrowserRouter><App/></BrowserRouter>)
+root.render(
+  <BrowserRouter>
+    <Friends/>
+  </BrowserRouter>
+);
 
 // 📜 Описание:
-// При заполнении данных формы и их отправке вы должны увидеть alert c
-// введенными значениями, но из-за допущенной ошибки форма работает не корректно.
-// Найдите ошибку и исправленную версию строки напишите в качестве ответа.
-// ❗После того как показался alert форма не должна перегружать все приложение
-
-// 🖥 Пример ответа: alert(JSON.stringify(values))
+// При загрузке приложения на экране отображается
+// профиль пользователя и список друзей.
+// Если кликнуть на пользователя, то видим ❌404 Page Not Found❌
+// Исправьте код, чтобы по клику на пользователя
+// отображалась странице с информацией о друге.
+// В качестве ответа укажите исправленную строку кода.
+//
+// 🖥 Пример ответа: <Profile userId={4}/>
+// Попробовать ответ: <Route path={'friend/:id'} element={<Profile/>}/>

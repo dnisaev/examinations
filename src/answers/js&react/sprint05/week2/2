@@ -79,9 +79,9 @@ type ActionsType = ReturnType<typeof setUsersAC>;
 // Thunk
 const getUsersTC =
   (searchParams?: ParamsType): AppThunk =>
-    (dispatch) => {
-      api.getUsers(searchParams).then((res) => dispatch(setUsersAC(res.data.items)));
-    };
+  (dispatch) => {
+    api.getUsers(searchParams).then((res) => dispatch(setUsersAC(res.data.items)));
+  };
 
 export const Users = () => {
   const [activeColumn, setActiveColumn] = useState<ParamsType>({
@@ -99,7 +99,6 @@ export const Users = () => {
 
   const sortHandler = (sortBy: string) => {
     // ❗❗❗ XXX ❗❗❗
-      setActiveColumn(activeColumn.sortDirection === "asc" ? {sortBy, sortDirection: "desc"} : {sortBy, sortDirection: "asc"})
   };
 
   return (
@@ -107,36 +106,36 @@ export const Users = () => {
       <h1>👪 Список пользователей</h1>
       <table style={table}>
         <thead>
-        <tr>
-          <th style={th} onClick={() => sortHandler("name")}>
-            Name
-            {activeColumn?.sortBy === "name" &&
-              (activeColumn.sortDirection === "asc" ? (
-                <span> &#8593;</span>
-              ) : (
-                <span> &#8595;</span>
-              ))}
-          </th>
-          <th style={th} onClick={() => sortHandler("age")}>
-            Age
-            {activeColumn?.sortBy === "age" &&
-              (activeColumn.sortDirection === "asc" ? (
-                <span> &#8593;</span>
-              ) : (
-                <span> &#8595;</span>
-              ))}
-          </th>
-        </tr>
+          <tr>
+            <th style={th} onClick={() => sortHandler("name")}>
+              Name
+              {activeColumn?.sortBy === "name" &&
+                (activeColumn.sortDirection === "asc" ? (
+                  <span> &#8593;</span>
+                ) : (
+                  <span> &#8595;</span>
+                ))}
+            </th>
+            <th style={th} onClick={() => sortHandler("age")}>
+              Age
+              {activeColumn?.sortBy === "age" &&
+                (activeColumn.sortDirection === "asc" ? (
+                  <span> &#8593;</span>
+                ) : (
+                  <span> &#8595;</span>
+                ))}
+            </th>
+          </tr>
         </thead>
         <tbody>
-        {users.map((u) => {
-          return (
-            <tr key={u.id}>
-              <td style={td}>{u.name}</td>
-              <td style={td}>{u.age}</td>
-            </tr>
-          );
-        })}
+          {users.map((u) => {
+            return (
+              <tr key={u.id}>
+                <td style={td}>{u.name}</td>
+                <td style={td}>{u.age}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -161,4 +160,4 @@ root.render(
 
 // Неверный ответ: setActiveColumn({sortBy, sortDirection: "asc"})
 // Неверный ответ: activeColumn.sortDirection === "asc" ? setActiveColumn({sortBy, sortDirection: "desc"}) : setActiveColumn({sortBy, sortDirection: "asc"})
-// Попробовать ответ: setActiveColumn(activeColumn.sortDirection === "asc" ? {sortBy, sortDirection: "desc"} : {sortBy, sortDirection: "asc"})
+// Неверный ответ: setActiveColumn(activeColumn.sortDirection === "asc" ? {sortBy, sortDirection: "desc"} : {sortBy, sortDirection: "asc"})

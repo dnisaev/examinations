@@ -68,6 +68,7 @@ export const Income = () => {
       <button
         onClick={() => {
           // ❗❗❗ XXX ❗❗❗
+          dispatch(changeValue({ balance: work + donate }))
         }}
       >
         calculate balance
@@ -87,3 +88,4 @@ root.render(
 // Что нужно написать вместо XXX, чтобы вывелась сумма дохода в строке баланса
 //
 // 🖥 Пример ответа: console.log(work + donate)
+// Верный ответ: dispatch(changeValue({ balance: work + donate }))

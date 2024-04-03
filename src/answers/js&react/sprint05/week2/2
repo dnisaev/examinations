@@ -162,4 +162,4 @@ root.render(
 // Неверный ответ: setActiveColumn({sortBy, sortDirection: "asc"})
 // Неверный ответ: activeColumn.sortDirection === "asc" ? setActiveColumn({sortBy, sortDirection: "desc"}) : setActiveColumn({sortBy, sortDirection: "asc"})
 // Неверный ответ: setActiveColumn(activeColumn.sortDirection === "asc" ? {sortBy, sortDirection: "desc"} : {sortBy, sortDirection: "asc"})
-// Попробовать ответ: setActiveColumn({sortBy, sortDirection: activeColumn.sortDirection === "asc" ? "desc" : "asc" })
+// Верный ответ: setActiveColumn({sortBy, sortDirection: activeColumn.sortDirection === "asc" ? "desc" : "asc" })
